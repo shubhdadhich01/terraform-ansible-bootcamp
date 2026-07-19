@@ -1,0 +1,49 @@
+---
+- name: Configure Zero Credential Access
+  hosts: appvm
+  become: true
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+
+    - name: Install auditd
+      ansible.builtin.apt:
+        name: auditd
+        state: present
+        update_cache: true
+
+    - name: Enable auditd
+      ansible.builtin.service:
+        name: auditd
+        state: started
+        enabled: true
+
+    - name: Copy Managed Identity script
+      ansible.builtin.copy:
+        src: files/access-check.sh
+        dest: /home/azureuser/access-check.sh
+        owner: azureuser
+        group: azureuser
+        mode: "0755"
+
+    - name: Execute access script
+      ansible.builtin.command:
+        cmd: /home/azureuser/access-check.sh
+      register: access_result
+
+    - name: Show output
+      ansible.builtin.debug:
+        var: access_result.stdout_lines
+
+    - name: Configure audit logging
+      ansible.builtin.lineinfile:
+        path: /etc/audit/rules.d/access.rules
+        line: "-w /home/azureuser/access-check.sh -p x -k managedidentity"
+        create: true
+
+    - name: Restart auditd
+      ansible.builtin.service:
+        name: auditd
+        state: restarted
