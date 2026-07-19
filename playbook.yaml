@@ -7,7 +7,42 @@
     - vars.yml
 
   tasks:
+    - name: Install prerequisites
+      ansible.builtin.apt:
+        name:
+        - curl
+        - apt-transport-https
+        - ca-certificates
+        - lsb-release
+        - gnupg
+      state: present
+      update_cache: true
 
+    - name: Download Microsoft signing key
+      ansible.builtin.shell: |
+        curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+      args:
+       creates: /etc/apt/trusted.gpg.d/microsoft.gpg
+
+    - name: Add Azure CLI repository
+      ansible.builtin.shell: |
+        AZ_REPO=$(lsb_release -cs)
+        echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" > /etc/apt/sources.list.d/azure-cli.list
+      args:
+        creates: /etc/apt/sources.list.d/azure-cli.list
+
+    - name: Install Azure CLI
+      ansible.builtin.apt:
+        name: azure-cli
+        state: present
+        update_cache: true
+
+    - name: Install Azure CLI
+      ansible.builtin.apt:
+        name: azure-cli
+        state: present
+        update_cache: true
+     
     - name: Install auditd
       ansible.builtin.apt:
         name: auditd
