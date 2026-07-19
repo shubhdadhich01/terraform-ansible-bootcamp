@@ -1,6 +1,6 @@
 ---
 - name: Configure Zero Credential Access
-  hosts: appvm
+  hosts: app
   become: true
 
   vars_files:
