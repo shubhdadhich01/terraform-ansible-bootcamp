@@ -4,7 +4,7 @@
   become: true
 
   vars_files:
-    - vars.yml
+    - /home/azureuser/terraform-ansible-bootcamp/vars.yaml
 
   tasks:
     - name: Install prerequisites
@@ -15,14 +15,14 @@
         - ca-certificates
         - lsb-release
         - gnupg
-      state: present
-      update_cache: true
+        state: present
+        update_cache: true
 
     - name: Download Microsoft signing key
       ansible.builtin.shell: |
         curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
       args:
-       creates: /etc/apt/trusted.gpg.d/microsoft.gpg
+        creates: /etc/apt/trusted.gpg.d/microsoft.gpg
 
     - name: Add Azure CLI repository
       ansible.builtin.shell: |
@@ -36,13 +36,7 @@
         name: azure-cli
         state: present
         update_cache: true
-
-    - name: Install Azure CLI
-      ansible.builtin.apt:
-        name: azure-cli
-        state: present
-        update_cache: true
-     
+ 
     - name: Install auditd
       ansible.builtin.apt:
         name: auditd
@@ -56,8 +50,8 @@
         enabled: true
 
     - name: Copy Managed Identity script
-      ansible.builtin.copy:
-        src: files/access-check.sh
+      ansible.builtin.template:
+        src: /home/azureuser/terraform-ansible-bootcamp/access-check.sh.j2
         dest: /home/azureuser/access-check.sh
         owner: azureuser
         group: azureuser
