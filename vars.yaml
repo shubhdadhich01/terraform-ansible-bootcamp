@@ -3,5 +3,5 @@ keyvault_name: key-vault-northwind-prod
 secret_name: db-passowrd-prod
 
 storage_account: northwindprodsa
-container_name: documents
+container_name: application-data-prod
 blob_name: welcome.txt
